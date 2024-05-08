@@ -1,0 +1,56 @@
+server:
+  port: 8989
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/react-spring-blog
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # DATABASE
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2-console
+#  datasource:
+#    url: jdbc:h2:~/h_blog
+#    driver-class-name: org.h2.Driver
+#    username: sa
+#    password:
+#
+#  # JPA
+#  jpa:
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.H2Dialect
+#        format-sql: true
+#        show-sql: true
+#    hibernate:
+#      ddl-auto: update
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    properties:
+      hibernate:
+        hibernate:
+        "[format_sql]": true            #SQL 보기 좋게 출력
+        "[user_sql_comments]": true     #SQL 생성시 주석 포함
+        "[highlight_sql]": true         #SQL 색깔
+        "[hbm2ddl.auto]": update
+    open-in-view: true
+    show-sql: true
+
+  #default 1MB
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+jwt:
+  header: "Authorization"
+  prefix: "Bearer "
+  secret: c0be13e858b17d2a9c88f0472e70e8b1041b40f1fa6d7f5f3805e7478d0c2b91f6aee0b1d292b1ee9b48d76f1cb9e9cb70b19aa9c5e5078b09c796fa63c0472a
+  tokenExpirationTime: 18000
+
+project:
+  folderPath: "files/"
