@@ -83,7 +83,6 @@ const Calendar = () => {
           let clickYear = year;
           let clickMonth = month + 1;
           let clickDate = date;
-          let userSelectedColor = setUserSelectedColor(setUserSelectedColor);
           calendarCells.push(
             <td key={`${row}-${col}`} onClick={() => handleClick(clickYear, clickMonth, clickDate)} className={isToday ? "today" : ""}>
               {date}
@@ -151,6 +150,7 @@ const Calendar = () => {
     console.log("클릭된 날짜 정보:", { year, month, date });
     // 클릭된 날짜 정보를 상태에 설정하고 팝업 창 열기
     setClickedDate({ year, month, date });
+    console.log(userSelectedColor);
     setShowPopup(true);
   };
 
@@ -163,7 +163,9 @@ const Calendar = () => {
   const findAllEvent = async () => {
     await axios.get('http://localhost:8989/event', { headers: headers })
     .then(response => {
-        console.log("전체 목록");
+      // 여기 마지막에 넣었음 내일 확인
+      setUserSelectedColor(response.data.userSelectedColor);
+      console.log("전체 목록");
     })
     .catch(error =>{
         console.error("캘린더 전체 목록 보여주기 실패", error);

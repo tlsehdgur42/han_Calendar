@@ -13,9 +13,9 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 public class EventResponseDto {
+    private Long id;
     private String title;
     private String color;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
     private String startingHour;
     private String endingHour;
@@ -23,6 +23,7 @@ public class EventResponseDto {
 
     @Builder
     public EventResponseDto(Event event) {
+        this.id = event.getId();
         this.title = event.getTitle();
         this.color = event.getColor();
         this.date = event.getDate();
