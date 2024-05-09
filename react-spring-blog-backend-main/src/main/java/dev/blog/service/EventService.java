@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,10 +68,21 @@ public class EventService {
         eventRepository.deleteByMemberIdAndId(eventMember.getId(), eventId);
     }
 
+    public Event findDateEvent(LocalDate date, Member member) {
+        Member eventMember = getMemberByEmail(member.getEmail());
+        Event findDateEvent = eventRepository.findByMemberIdAndDate(eventMember.getId(), date)
+                .orElseThrow(()-> new ResourceNotFoundException("EventDate", "Event 날짜를 찾을 수 없음", String.valueOf(date)));
+        return findDateEvent;
+    }
+
+
+
+
 
     // 이메일을 기반으로 사용자를 가져오는 메서드
     private Member getMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Member", "Member Email", email));
     }
+
 }

@@ -1,10 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import "../../css/calendar.css";
 import { HttpHeadersContext } from '../context/HttpHeadersProvider';
 
 
-const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
+const PopupEvent = ({ clickedDate, onClose }) => {
 
   const { headers, setHeaders } = useContext(HttpHeadersContext);
 
@@ -14,13 +14,45 @@ const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
   const [summary, setSummary] = useState('');
   const [startingHour, setStartingHour] = useState('');
   const [endingHour, setEndingHour] = useState('');
+  const [eventId, setEventId] = useState(null); // 수정 모드인 경우 일정 ID를 저장할 상태
 
-  
+
+  useEffect(() => {
+    // 클릭된 날짜 정보가 있고, 해당 날짜에 일정이 있는지 확인
+    if (clickedDate) {
+      const formattedDate = `${clickedDate.year}-${clickedDate.month}-${clickedDate.date}`;
+      axios.get(`http://localhost:8989/event/date/${formattedDate}`, { headers: headers })
+      .then(response => {
+        // 해당 날짜에 일정이 존재하는 경우, 일정 정보를 상태에 설정
+        const eventData = response.data;
+
+        setTitle(eventData.title);
+        setColor(eventData.color);
+        setSummary(eventData.summary);
+        setStartingHour(eventData.startingHour);
+        setEndingHour(eventData.endingHour);
+        setEventId(eventData.id); // 수정 모드이므로 일정 ID 설정
+      })
+      .catch(error => {
+        // 해당 날짜에 일정이 없는 경우, 초기화
+        setTitle('');
+        setColor('');
+        setSummary('');
+        setStartingHour('');
+        setEndingHour('');
+        setEventId(null);
+      });
+    }
+  }, [clickedDate, headers]); // clickedDate가 변경될 때마다 실행
+
+
   const handleSave = () => {
+    const formattedDate = `${clickedDate.year}-${clickedDate.month}-${clickedDate.date}`;    
+
     const eventData = {
       title: title,
       color: color,
-      date: `${clickedDate.year}. ${clickedDate.month}. ${clickedDate.date}`,
+      date: formattedDate, // YYYY-MM-DD 형식으로 조합
       startingHour: startingHour,
       endingHour: endingHour,
       summary: summary,
@@ -30,7 +62,6 @@ const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
     .then(response => {
       console.log('캘린더 일정이 성공적으로 저장되었습니다.');
       onClose(); // 저장 후 팝업 닫기
-      setUserSelectedColor(color);
     })
     .catch(error => {
       console.error('캘린더 일정 저장에 실패했습니다.', error);

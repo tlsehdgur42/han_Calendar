@@ -5,6 +5,8 @@ import dev.blog.dto.request.event.EventUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,7 +17,7 @@ public class Event {
     private Long id;
     private String title;
     private String color;
-    private String date;
+    private LocalDate date;
     private String startingHour;
     private String endingHour;
     private String summary;
@@ -25,7 +27,7 @@ public class Event {
     public Member member;
 
     @Builder
-    public Event(String title, String color, String date, String startingHour, String endingHour, String summary) {
+    public Event(String title, String color, LocalDate date, String startingHour, String endingHour, String summary) {
         this.title = title;
         this.color = color;
         this.date = date;

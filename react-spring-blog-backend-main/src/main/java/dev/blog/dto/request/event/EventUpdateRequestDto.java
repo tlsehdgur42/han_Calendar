@@ -2,6 +2,9 @@ package dev.blog.dto.request.event;
 
 import dev.blog.entity.Event;
 import lombok.*;
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -10,7 +13,7 @@ import lombok.*;
 public class EventUpdateRequestDto {
     private String title;
     private String color;
-    private String date;
+    private LocalDate date;
     private String startingHour;
     private String endingHour;
     private String summary;

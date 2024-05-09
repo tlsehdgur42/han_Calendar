@@ -1,18 +1,22 @@
 package dev.blog.dto.response.event;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dev.blog.entity.Event;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Getter
 @NoArgsConstructor
 public class EventResponseDto {
     private String title;
     private String color;
-    private String date;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate date;
     private String startingHour;
     private String endingHour;
     private String summary;

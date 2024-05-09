@@ -4,6 +4,8 @@ package dev.blog.dto.request.event;
 import dev.blog.entity.Event;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -11,7 +13,7 @@ import lombok.*;
 public class EventRequestDto {
     private String title;
     private String color;
-    private String date;
+    private LocalDate date;
     private String startingHour;
     private String endingHour;
     private String summary;

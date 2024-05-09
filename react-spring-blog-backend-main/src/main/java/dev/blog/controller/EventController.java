@@ -7,11 +7,13 @@ import dev.blog.entity.Event;
 import dev.blog.entity.Member;
 import dev.blog.service.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,11 +35,21 @@ public class EventController {
 
     // 캘린더 전체 일정 보기
     @GetMapping
-    public ResponseEntity<List<EventResponseDto>> findAllEvent(@AuthenticationPrincipal Member memeber) {
-        List<Event> events = eventService.findAllEvent(memeber);
+    public ResponseEntity<List<EventResponseDto>> findAllEvent(@AuthenticationPrincipal Member member) {
+        List<Event> events = eventService.findAllEvent(member);
         List<EventResponseDto> responses = events.stream().map(EventResponseDto::new).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
+
+    // 캘린더 날짜로 일정 조회
+    @GetMapping("/date/{formattedDate}")
+    public ResponseEntity<EventResponseDto> findDateEvent(@PathVariable("formattedDate") LocalDate date,
+                                                          @AuthenticationPrincipal Member member) {
+        Event event = eventService.findDateEvent(date, member);
+        EventResponseDto response = new EventResponseDto(event);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventResponseDto> detailEvent(@PathVariable("eventId") Long eventId,
