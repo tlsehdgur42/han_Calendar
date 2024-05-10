@@ -18,7 +18,7 @@ const Calendar = () => {
   const [calendarBody, setCalendarBody] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [clickedDate, setClickedDate] = useState([]);
-  const [userSelectedColor, setUserSelectedColor] = useState(''); // 사용자가 선택한 색상값 상태
+  const [userSelectedColor, setUserSelectedColor] = useState([]); // 사용자가 선택한 색상값 상태
 
   // 컴포넌트가 마운트될 때 초기화 함수 실행
   useEffect(() => {
@@ -163,8 +163,9 @@ const Calendar = () => {
   const findAllEvent = async () => {
     await axios.get('http://localhost:8989/event', { headers: headers })
     .then(response => {
-      // 여기 마지막에 넣었음 내일 확인
-      setUserSelectedColor(response.data.userSelectedColor);
+      const colors = response.data.map(event => event.color);
+      setUserSelectedColor(colors);
+      console.log(colors); // 색상값 배열 출력
       console.log("전체 목록");
     })
     .catch(error =>{
@@ -211,3 +212,6 @@ const Calendar = () => {
 };
 
 export default Calendar;
+
+// span 태그 value안에 PopupEvent.js에서 const [eventId, setEventId] = useState(null); 이 값을 가져오고 get으로 eventId로 해당되는 값을 가져와서 색상을 가져오는 방식을 생각해봤다.
+// 아니면 처음 렌더링이 될 때 findAllEvent 함수로 전체를 조회해서 해당하는 셀에 저장되게 하는 방법 ? 될까 ?

@@ -17,7 +17,7 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration(); // CORS 설정 객체 생성
         configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 허용할 오리진(도메인) 설정
-        configuration.setAllowedMethods(Arrays.asList("GET","POST", "OPTIONS", "PATCH", "DELETE")); // 허용할 HTTP 메서드 설정
+        configuration.setAllowedMethods(Arrays.asList("GET","POST", "OPTIONS", "PATCH", "DELETE","PUT")); // 허용할 HTTP 메서드 설정
         configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization")); // 허용할 HTTP 헤더 설정
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // URL 기반의 CORS 설정을 관리하는 객체 생성

@@ -43,6 +43,7 @@ public class Event {
     }
 
     public void updateEvent(EventUpdateRequestDto request) {
+        this.id = request.getId();
         this.title = request.getTitle();
         this.color = request.getColor();
         this.date = request.getDate();

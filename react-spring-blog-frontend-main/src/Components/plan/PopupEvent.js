@@ -9,47 +9,44 @@ const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
   const { headers, setHeaders } = useContext(HttpHeadersContext);
 
   const [title, setTitle] = useState('');
-  const [color, setColor] = useState('#000000');
+  const [color, setColor] = useState('');
   const [date, setDate] = useState('');
   const [summary, setSummary] = useState('');
   const [startingHour, setStartingHour] = useState('');
   const [endingHour, setEndingHour] = useState('');
   const [eventId, setEventId] = useState(null); // 수정 모드인 경우 일정 ID를 저장할 상태
 
-
   useEffect(() => {
-    // 클릭된 날짜 정보가 있고, 해당 날짜에 일정이 있는지 확인
+    fetchEventData();
+  }, [clickedDate, headers]);
+  
+
+  const fetchEventData = async () => {
     if (clickedDate) {
       const eventDate = new Date(clickedDate.year, clickedDate.month - 1, clickedDate.date + 1);
       const formattedDate = eventDate.toISOString().split('T')[0];
 
-      axios.get(`http://localhost:8989/event/date/${formattedDate}`, { headers: headers })
-      .then(response => {
-        // 해당 날짜에 일정이 존재하는 경우, 일정 정보를 상태에 설정
+      try {
+        const response = await axios.get(`http://localhost:8989/event/date/${formattedDate}`, { headers: headers });
         const eventData = response.data;
-
+        console.log(eventData.id);
         setTitle(eventData.title);
         setColor(eventData.color);
         setSummary(eventData.summary);
         setStartingHour(eventData.startingHour);
         setEndingHour(eventData.endingHour);
-        setEventId(eventData.id); // 수정 모드이므로 일정 ID 설정
-
-        
-      })
-      .catch(error => {
-        // 해당 날짜에 일정이 없는 경우, 초기화
+        setEventId(eventData.id);
+        console.log(eventData.id);
+      } catch (error) {
         setTitle('');
         setColor('');
         setSummary('');
         setStartingHour('');
         setEndingHour('');
         setEventId(null);
-      });
-    }else{
-      console.log("일정 없습니다.");
+      }
     }
-  }, [clickedDate, headers]); // clickedDate가 변경될 때마다 실행
+  };
 
 
   const handleSave = () => {
@@ -59,19 +56,33 @@ const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
     // ISO 8601 형식으로 변환 (YYYY-MM-DD)
     const formattedDate = eventDate.toISOString().split('T')[0];
 
+    // color 상태가 비어 있는 경우 #000000으로 설정
+    const selectedColor = color || '#000000';
+
     const eventData = {
+      id : eventId,
       title: title,
-      color: color,
+      color: selectedColor,
       date: formattedDate, // YYYY-MM-DD 형식으로 조합
       startingHour: startingHour,
       endingHour: endingHour,
       summary: summary,
     };
 
-    axios.post('http://localhost:8989/event', eventData, { headers: headers })
+    // eventId 값에 따라 일정을 추가하거나 수정합니다.
+    const url = eventId ? `http://localhost:8989/event/${eventId}` : 'http://localhost:8989/event';
+    const method = eventId ? 'PUT' : 'POST';
+
+    axios({
+      method: method,
+      url: url,
+      data: eventData,
+      headers: headers
+    })
     .then(response => {
+      const savedColor = response.data.color; // 서버에서 반환한 색상 값
+      setUserSelectedColor(savedColor); // 색상 값을 업데이트하여 뷰에 반영
       console.log('캘린더 일정이 성공적으로 저장되었습니다.');
-      console.log(color);
       onClose(); // 저장 후 팝업 닫기
     })
     .catch(error => {
@@ -79,9 +90,30 @@ const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
     });
   };
 
+  const handleDelete = () => {
+    if (!eventId) {
+      return; // eventId가 없으면 삭제할 이벤트가 없으므로 아무 작업도 수행하지 않습니다.
+    }
+
+    const confirmed = window.confirm('정말로 이 일정을 삭제하시겠습니까?');
+    if (!confirmed) {
+      return; // 사용자가 취소하면 아무 작업도 수행하지 않습니다.
+    }
+
+    axios.delete(`http://localhost:8989/event/${eventId}`, { headers: headers })
+      .then(response => {
+        console.log('캘린더 일정이 성공적으로 삭제되었습니다.');
+        setUserSelectedColor(''); // 삭제 후 색상 값을 초기화하여 뷰에 반영
+        onClose();
+      })
+      .catch(error => {
+        console.error('캘린더 일정 삭제에 실패했습니다.', error);
+      });
+  };
+
   const handleColorChange = (selectedColor) => {
     setColor(selectedColor);
-    setUserSelectedColor(selectedColor); // 사용자가 선택한 색상값 업데이트
+    // setUserSelectedColor(selectedColor); // 사용자가 선택한 색상값 업데이트
   };
 
   return (
@@ -102,11 +134,11 @@ const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
         <br/>
         <label htmlFor="summary">메모:</label>
         <input type="text" id="summary" value={summary} onChange={(e) => setSummary(e.target.value)} />
-        <button onClick={handleSave}>저장</button>
+        <button onClick={handleSave}>{eventId ? '수정' : '저장'}</button>
+        {eventId && <button onClick={handleDelete}>삭제</button>}
       </div>
     </div>
   );
 };
 
 export default PopupEvent;
-

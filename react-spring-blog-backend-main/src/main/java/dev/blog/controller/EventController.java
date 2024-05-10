@@ -38,6 +38,7 @@ public class EventController {
     public ResponseEntity<List<EventResponseDto>> findAllEvent(@AuthenticationPrincipal Member member) {
         List<Event> events = eventService.findAllEvent(member);
         List<EventResponseDto> responses = events.stream().map(EventResponseDto::new).collect(Collectors.toList());
+        System.out.println(responses);
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
@@ -59,7 +60,7 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PatchMapping("/{eventId}")
+    @PutMapping("/{eventId}")
     public ResponseEntity<EventResponseDto> updateEvent(@PathVariable("eventId") Long eventId,
                                                         @RequestBody EventUpdateRequestDto request,
                                                         @AuthenticationPrincipal Member member) {

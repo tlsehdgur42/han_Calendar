@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventUpdateRequestDto {
+    private Long id;
     private String title;
     private String color;
     private LocalDate date;
