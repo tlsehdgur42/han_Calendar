@@ -4,7 +4,7 @@ import "../../css/calendar.css";
 import { HttpHeadersContext } from '../context/HttpHeadersProvider';
 
 
-const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
+const PopupEvent = ({ clickedDate, onClose, userSelectedColor,setUserSelectedColor }) => {
 
   const { headers, setHeaders } = useContext(HttpHeadersContext);
 
@@ -36,7 +36,6 @@ const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
         setStartingHour(eventData.startingHour);
         setEndingHour(eventData.endingHour);
         setEventId(eventData.id);
-        console.log(eventData.id);
       } catch (error) {
         setTitle('');
         setColor('');
@@ -81,7 +80,7 @@ const PopupEvent = ({ clickedDate, onClose, setUserSelectedColor }) => {
     })
     .then(response => {
       const savedColor = response.data.color; // 서버에서 반환한 색상 값
-      setUserSelectedColor(savedColor); // 색상 값을 업데이트하여 뷰에 반영
+      setUserSelectedColor([...userSelectedColor.slice(0, clickedDate.date - 1), savedColor, ...userSelectedColor.slice(clickedDate.date)]); // 색상 값을 업데이트하여 뷰에 반영
       console.log('캘린더 일정이 성공적으로 저장되었습니다.');
       onClose(); // 저장 후 팝업 닫기
     })

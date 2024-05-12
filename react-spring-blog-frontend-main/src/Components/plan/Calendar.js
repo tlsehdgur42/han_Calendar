@@ -23,12 +23,12 @@ const Calendar = () => {
   // 컴포넌트가 마운트될 때 초기화 함수 실행
   useEffect(() => {
     updateCalendar(); // useEffect 훅을 사용하여 컴포넌트가 마운트될 때 초기화 함수를 실행합니다.
-
+    findAllEvent();
     setHeaders({
         Authorization: `Bearer ${localStorage.getItem("bbs_access_token")}`,
     });
 
-    findAllEvent();
+    
   }, []);
 
 
@@ -83,10 +83,21 @@ const Calendar = () => {
           let clickYear = year;
           let clickMonth = month + 1;
           let clickDate = date;
+          let checkDate = `${clickYear}-${clickMonth > 9 ? clickMonth : "0" + clickMonth}-${clickDate > 9 ? clickDate : "0" + clickDate}`;
+          // console.log( checkDate );
           calendarCells.push(
             <td key={`${row}-${col}`} onClick={() => handleClick(clickYear, clickMonth, clickDate)} className={isToday ? "today" : ""}>
               {date}
-              <span className='circleColor' style={{ backgroundColor: userSelectedColor }}></span>
+              {userSelectedColor.map(item => {
+                console.log(item.date, checkDate)
+                if (item.date === checkDate) {
+                  return (
+                    <span key={item.date} className='circleColor' style={{ backgroundColor: item.color }}></span>
+                  );
+                }
+                return null; // 조건이 맞지 않는 경우에는 null을 반환하여 렌더링하지 않음
+              })}
+              
             </td>
           );
           date++; // 다음 날짜로 이동합니다.
@@ -163,7 +174,7 @@ const Calendar = () => {
   const findAllEvent = async () => {
     await axios.get('http://localhost:8989/event', { headers: headers })
     .then(response => {
-      const colors = response.data.map(event => event.color);
+      const colors = response.data;
       setUserSelectedColor(colors);
       console.log(colors); // 색상값 배열 출력
       console.log("전체 목록");
@@ -200,6 +211,7 @@ const Calendar = () => {
           <PopupEvent
             clickedDate={clickedDate}
             onClose={handleClosePopup}
+            userSelectedColor={userSelectedColor} // userSelectedColor를 전달
             setUserSelectedColor={setUserSelectedColor}
           />
         )}
