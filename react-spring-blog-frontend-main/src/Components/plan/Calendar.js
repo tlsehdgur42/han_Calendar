@@ -7,7 +7,7 @@ import { Navigate } from 'react-router';
 import axios from 'axios';
 
 const Calendar = () => {
-  const {auth, setAuth } = useContext(AuthContext);
+  // const {auth, setAuth } = useContext(AuthContext);
   const {headers, setHeaders } = useContext(HttpHeadersContext);
 
 
@@ -19,17 +19,23 @@ const Calendar = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [clickedDate, setClickedDate] = useState([]);
   const [userSelectedColor, setUserSelectedColor] = useState([]); // 사용자가 선택한 색상값 상태
+  const [eventDataFetched, setEventDataFetched] = useState(false);
 
   // 컴포넌트가 마운트될 때 초기화 함수 실행
   useEffect(() => {
     updateCalendar(); // useEffect 훅을 사용하여 컴포넌트가 마운트될 때 초기화 함수를 실행합니다.
-    findAllEvent();
+
+    if (!eventDataFetched) {
+      findAllEvent();
+      setEventDataFetched(true);
+    }
+    
     setHeaders({
         Authorization: `Bearer ${localStorage.getItem("bbs_access_token")}`,
     });
 
     
-  }, []);
+  }, [userSelectedColor, eventDataFetched]);
 
 
   // 현재 날짜와 보기에 기반하여 달력을 업데이트하는 함수
@@ -84,7 +90,6 @@ const Calendar = () => {
           let clickMonth = month + 1;
           let clickDate = date;
           let checkDate = `${clickYear}-${clickMonth > 9 ? clickMonth : "0" + clickMonth}-${clickDate > 9 ? clickDate : "0" + clickDate}`;
-          // console.log( checkDate );
           calendarCells.push(
             <td key={`${row}-${col}`} onClick={() => handleClick(clickYear, clickMonth, clickDate)} className={isToday ? "today" : ""}>
               {date}
@@ -153,10 +158,10 @@ const Calendar = () => {
   const handleClick = (year, month, date) => {
 
     // 로그인한 사용자인지 체크
-    if (!auth) {
-        alert("로그인 한 사용자만 캘린더에 일정을 작성할 수 있습니다 !");
-        Navigate(-1);
-    }
+    // if (!auth) {
+    //     alert("로그인 한 사용자만 캘린더에 일정을 작성할 수 있습니다 !");
+    //     Navigate(-1);
+    // }
     
     console.log("클릭된 날짜 정보:", { year, month, date });
     // 클릭된 날짜 정보를 상태에 설정하고 팝업 창 열기
@@ -174,6 +179,7 @@ const Calendar = () => {
   const findAllEvent = async () => {
     await axios.get('http://localhost:8989/event', { headers: headers })
     .then(response => {
+      // 해당 사용자 전체 데이터 가져오기
       const colors = response.data;
       setUserSelectedColor(colors);
       console.log(colors); // 색상값 배열 출력
@@ -211,19 +217,11 @@ const Calendar = () => {
           <PopupEvent
             clickedDate={clickedDate}
             onClose={handleClosePopup}
-            userSelectedColor={userSelectedColor} // userSelectedColor를 전달
-            setUserSelectedColor={setUserSelectedColor}
           />
         )}
       </div>
-        <div>
-            {auth}님
-        </div>
     </>
   );
 };
 
 export default Calendar;
-
-// span 태그 value안에 PopupEvent.js에서 const [eventId, setEventId] = useState(null); 이 값을 가져오고 get으로 eventId로 해당되는 값을 가져와서 색상을 가져오는 방식을 생각해봤다.
-// 아니면 처음 렌더링이 될 때 findAllEvent 함수로 전체를 조회해서 해당하는 셀에 저장되게 하는 방법 ? 될까 ?

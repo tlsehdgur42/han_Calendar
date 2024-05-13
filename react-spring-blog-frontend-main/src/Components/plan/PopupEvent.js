@@ -4,13 +4,13 @@ import "../../css/calendar.css";
 import { HttpHeadersContext } from '../context/HttpHeadersProvider';
 
 
-const PopupEvent = ({ clickedDate, onClose, userSelectedColor,setUserSelectedColor }) => {
+const PopupEvent = ({ clickedDate, onClose }) => {
 
   const { headers, setHeaders } = useContext(HttpHeadersContext);
-
+  const colors = ['#FF8888', '#FFAA80', '#FFD173', '#B0D977', '#66CCAA','#79CAF2', '#61AAF2', '#9997FF', '#dddddd', '#333333'];
   const [title, setTitle] = useState('');
   const [color, setColor] = useState('');
-  const [date, setDate] = useState('');
+  // const [date, setDate] = useState('');
   const [summary, setSummary] = useState('');
   const [startingHour, setStartingHour] = useState('');
   const [endingHour, setEndingHour] = useState('');
@@ -22,28 +22,25 @@ const PopupEvent = ({ clickedDate, onClose, userSelectedColor,setUserSelectedCol
   
 
   const fetchEventData = async () => {
-    if (clickedDate) {
+    if (clickedDate && eventId != null) {
       const eventDate = new Date(clickedDate.year, clickedDate.month - 1, clickedDate.date + 1);
       const formattedDate = eventDate.toISOString().split('T')[0];
-
-      try {
-        const response = await axios.get(`http://localhost:8989/event/date/${formattedDate}`, { headers: headers });
-        const eventData = response.data;
-        console.log(eventData.id);
-        setTitle(eventData.title);
-        setColor(eventData.color);
-        setSummary(eventData.summary);
-        setStartingHour(eventData.startingHour);
-        setEndingHour(eventData.endingHour);
-        setEventId(eventData.id);
-      } catch (error) {
-        setTitle('');
-        setColor('');
-        setSummary('');
-        setStartingHour('');
-        setEndingHour('');
-        setEventId(null);
-      }
+      const response = await axios.get(`http://localhost:8989/event/date/${formattedDate}`, { headers: headers });
+      const eventData = response.data;
+      console.log(eventData.id);
+      setTitle(eventData.title);
+      setColor(eventData.color);
+      setSummary(eventData.summary);
+      setStartingHour(eventData.startingHour);
+      setEndingHour(eventData.endingHour);
+      setEventId(eventData.id);
+    } else {
+      setTitle('');
+      setColor('');
+      setSummary('');
+      setStartingHour('');
+      setEndingHour('');
+      setEventId(null);
     }
   };
 
@@ -55,8 +52,8 @@ const PopupEvent = ({ clickedDate, onClose, userSelectedColor,setUserSelectedCol
     // ISO 8601 형식으로 변환 (YYYY-MM-DD)
     const formattedDate = eventDate.toISOString().split('T')[0];
 
-    // color 상태가 비어 있는 경우 #000000으로 설정
-    const selectedColor = color || '#000000';
+    // color 상태가 비어 있는 경우 #FF8888으로 설정
+    const selectedColor = color || '#FF8888';
 
     const eventData = {
       id : eventId,
@@ -80,7 +77,6 @@ const PopupEvent = ({ clickedDate, onClose, userSelectedColor,setUserSelectedCol
     })
     .then(response => {
       const savedColor = response.data.color; // 서버에서 반환한 색상 값
-      setUserSelectedColor([...userSelectedColor.slice(0, clickedDate.date - 1), savedColor, ...userSelectedColor.slice(clickedDate.date)]); // 색상 값을 업데이트하여 뷰에 반영
       console.log('캘린더 일정이 성공적으로 저장되었습니다.');
       onClose(); // 저장 후 팝업 닫기
     })
@@ -102,7 +98,7 @@ const PopupEvent = ({ clickedDate, onClose, userSelectedColor,setUserSelectedCol
     axios.delete(`http://localhost:8989/event/${eventId}`, { headers: headers })
       .then(response => {
         console.log('캘린더 일정이 성공적으로 삭제되었습니다.');
-        setUserSelectedColor(''); // 삭제 후 색상 값을 초기화하여 뷰에 반영
+        // setUserSelectedColor(''); // 삭제 후 색상 값을 초기화하여 뷰에 반영
         onClose();
       })
       .catch(error => {
@@ -110,9 +106,8 @@ const PopupEvent = ({ clickedDate, onClose, userSelectedColor,setUserSelectedCol
       });
   };
 
-  const handleColorChange = (selectedColor) => {
-    setColor(selectedColor);
-    // setUserSelectedColor(selectedColor); // 사용자가 선택한 색상값 업데이트
+  const setColors = (e) => {
+    setColor(e.target.id);
   };
 
   return (
@@ -129,7 +124,13 @@ const PopupEvent = ({ clickedDate, onClose, userSelectedColor,setUserSelectedCol
         <input type='time' id='endingHour' value={endingHour} onChange={(e) => setEndingHour(e.target.value)}/>
         <br/>
         <label htmlFor="color">색상:</label>
-        <input type="color" id="color" value={color} onChange={(e) => handleColorChange(e.target.value)} />
+        <ul className='color'>
+          <h2>{color}</h2>
+          {colors.map(((col, key) => {
+            return (<li key={key} id={`${col}`} style={{ background: `${col}` }} onClick={e => { setColors(e) }}></li>)
+          }))
+          }
+        </ul>
         <br/>
         <label htmlFor="summary">메모:</label>
         <input type="text" id="summary" value={summary} onChange={(e) => setSummary(e.target.value)} />

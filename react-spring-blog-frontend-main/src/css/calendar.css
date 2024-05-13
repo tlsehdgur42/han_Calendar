@@ -488,3 +488,30 @@
     }
 
 
+
+    .color {
+        display: flex;
+    }
+    
+    .color li {
+        content: "";
+        display: block;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 20px;
+        border: 5px solid #fff;
+        cursor: pointer;
+    }
+    
+    .color li.selected {
+        border: 5px solid #000;
+    }
+    
+    .color li span {
+        content: "";
+        display: block;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+    }
